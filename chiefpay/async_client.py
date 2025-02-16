@@ -2,6 +2,7 @@ import aiohttp
 from typing import Dict, Optional
 from chiefpay.base import BaseClient
 from chiefpay.exceptions import APIError, HTTPError
+from chiefpay.utils import Utils
 
 
 class AsyncClient(BaseClient):
@@ -59,15 +60,20 @@ class AsyncClient(BaseClient):
 
     async def get_history(self, from_date: str, to_date: Optional[str] = None):
         """
-        Asynchronously retrieves transaction history within a given date range.
+        Retrieves transaction history within a given date range.
 
         Parameters:
             from_date (str): The start date.
             to_date (str, optional): The end date.
+            Format: ISO 8601 (YYYY-MM-DDTHH:MM:SS.sssZ)
 
         Returns:
             dict: The transaction history.
         """
+        Utils.validate_date(from_date)
+        if to_date:
+            Utils.validate_date(to_date)
+
         params = {"fromDate": from_date, "toDate": to_date}
         return await self._get_request("history", params)
 

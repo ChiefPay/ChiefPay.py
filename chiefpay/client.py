@@ -3,6 +3,7 @@ from typing import Dict, Optional
 
 from chiefpay.base import BaseClient
 from chiefpay.exceptions import HTTPError, APIError
+from chiefpay.utils import Utils
 
 
 class Client(BaseClient):
@@ -65,10 +66,14 @@ class Client(BaseClient):
         Parameters:
             from_date (str): The start date.
             to_date (str, optional): The end date.
+            Format: ISO 8601 (YYYY-MM-DDTHH:MM:SS.sssZ)
 
         Returns:
             dict: The transaction history.
         """
+        Utils.validate_date(from_date)
+        if to_date:
+            Utils.validate_date(to_date)
 
         params = {"fromDate": from_date, "toDate": to_date}
         return self._get_request("history", params)
