@@ -3,6 +3,7 @@ from typing import Dict, Optional
 
 from chiefpay.base import BaseClient
 from chiefpay.exceptions import HTTPError, APIError
+from chiefpay.types import History, Wallet, Invoice, Rate
 from chiefpay.utils import Utils
 
 
@@ -30,21 +31,23 @@ class Client(BaseClient):
         if not (200 <= response.status_code < 300):
             raise HTTPError(response.status_code, response.text)
         try:
-            return response.json()
+            data = response.json()
+            return data.get('data')
         except ValueError:
             raise APIError("Invalid JSON response")
 
 
-    def get_rates(self):
+    def get_rates(self) -> list[Rate]:
         """
         Retrieves the current exchange rates.
 
         Returns:
-            dict: The exchange rate data.
+             Rate DTO: The exchange rate data.
         """
-        return self._get_request("rates")
+        response_data = self._get_request("rates")
+        return [Rate(**rate) for rate in response_data]
 
-    def get_invoice(self, id: str, order_id: str):
+    def get_invoice(self, id: str, order_id: str) -> Invoice:
         """
         Retrieves information about a specific invoice.
 
@@ -53,13 +56,13 @@ class Client(BaseClient):
             order_id (str): The order ID.
 
         Returns:
-            dict: The invoice data.
+             Invoice DTO: The invoice data.
         """
-
         params = {"id": id, "orderId": order_id}
-        return self._get_request("invoice", params)
+        response_data = self._get_request("invoice", params)
+        return Invoice(**response_data)
 
-    def get_history(self, from_date: str, to_date: Optional[str] = None):
+    def get_history(self, from_date: str, to_date: Optional[str] = None) -> list[History]:
         """
         Retrieves transaction history within a given date range.
 
@@ -69,16 +72,17 @@ class Client(BaseClient):
             Format: ISO 8601 (YYYY-MM-DDTHH:MM:SS.sssZ)
 
         Returns:
-            dict: The transaction history.
+             History DTO: The transaction history.
         """
         Utils.validate_date(from_date)
         if to_date:
             Utils.validate_date(to_date)
 
         params = {"fromDate": from_date, "toDate": to_date}
-        return self._get_request("history", params)
+        response_data = self._get_request("history", params)
+        return [History(**history) for history in response_data]
 
-    def get_wallet(self, id: str, order_id: str):
+    def get_wallet(self, id: str, order_id: str) -> Wallet:
         """
         Retrieves information about a wallet.
 
@@ -87,11 +91,12 @@ class Client(BaseClient):
             order_id (str): The order ID.
 
         Returns:
-            dict: The wallet data.
+             Wallet DTO: The created wallet data.
         """
 
         params = {"id": id, "orderId": order_id}
-        return self._get_request("wallet", params)
+        response_data = self._get_request("wallet", params)
+        return Wallet(**response_data)
 
 
     def create_invoice(
@@ -103,7 +108,7 @@ class Client(BaseClient):
         fee_included: bool,
         accuracy: str,
         discount: str,
-    ):
+    ) -> Invoice:
         """
         Creates a new invoice.
 
@@ -117,7 +122,7 @@ class Client(BaseClient):
             discount (str): The discount.
 
         Returns:
-            dict: The created invoice data.
+             Invoice DTO: The created invoice data.
         """
 
         data = {
@@ -131,7 +136,7 @@ class Client(BaseClient):
         }
         return self._post_request('invoice', json=data)
 
-    def create_wallet(self, order_id: str):
+    def create_wallet(self, order_id: str) -> Wallet:
         """
         Creates a new wallet.
 
@@ -139,7 +144,7 @@ class Client(BaseClient):
             order_id (str): The order ID.
 
         Returns:
-            dict: The created wallet data.
+             Wallet DTO: The created wallet data.
         """
 
         data = {

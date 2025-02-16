@@ -2,6 +2,7 @@ import aiohttp
 from typing import Dict, Optional
 from chiefpay.base import BaseClient
 from chiefpay.exceptions import APIError, HTTPError
+from chiefpay.types import Rate, History, Wallet, Invoice
 from chiefpay.utils import Utils
 
 
@@ -30,21 +31,23 @@ class AsyncClient(BaseClient):
             text = await response.text()
             raise HTTPError(response.status, text)
         try:
-            return await response.json()
+            data = await response.json()
+            return data
         except ValueError:
             raise APIError("Invalid JSON response")
 
 
-    async def get_rates(self):
+    async def get_rates(self) -> list[Rate]:
         """
         Asynchronously retrieves the current exchange rates.
 
         Returns:
-            dict: The exchange rate data.
+             Rate DTO: The exchange rate data.
         """
-        return await self._get_request("rates")
+        rates = await self._get_request("rates")
+        return [Rate(**rate) for rate in rates]
 
-    async def get_invoice(self, id: str, order_id: str):
+    async def get_invoice(self, id: str, order_id: str) -> Invoice:
         """
         Asynchronously retrieves information about a specific invoice.
 
@@ -53,12 +56,13 @@ class AsyncClient(BaseClient):
             order_id (str): The order ID.
 
         Returns:
-            dict: The invoice data.
+             Invoice DTO: The invoice data.
         """
         params = {"id": id, "orderId": order_id}
-        return await self._get_request("invoice", params)
+        response_data = await self._get_request("invoice", params)
+        return Invoice(**response_data)
 
-    async def get_history(self, from_date: str, to_date: Optional[str] = None):
+    async def get_history(self, from_date: str, to_date: Optional[str] = None) -> list[History]:
         """
         Retrieves transaction history within a given date range.
 
@@ -68,16 +72,17 @@ class AsyncClient(BaseClient):
             Format: ISO 8601 (YYYY-MM-DDTHH:MM:SS.sssZ)
 
         Returns:
-            dict: The transaction history.
+             History DTO: The transaction history.
         """
         Utils.validate_date(from_date)
         if to_date:
             Utils.validate_date(to_date)
 
         params = {"fromDate": from_date, "toDate": to_date}
-        return await self._get_request("history", params)
+        response_data = await self._get_request("history", params)
+        return [History(**history) for history in response_data]
 
-    async def get_wallet(self, id: str, order_id: str):
+    async def get_wallet(self, id: str, order_id: str) -> Wallet:
         """
         Asynchronously retrieves information about a wallet.
 
@@ -86,10 +91,11 @@ class AsyncClient(BaseClient):
             order_id (str): The order ID.
 
         Returns:
-            dict: The wallet data.
+             Wallet DTO: The wallet data.
         """
         params = {"id": id, "orderId": order_id}
-        return await self._get_request("wallet", params)
+        response_data = await self._get_request("wallet", params)
+        return Wallet(**response_data)
 
 
     async def create_invoice(
@@ -101,7 +107,7 @@ class AsyncClient(BaseClient):
         fee_included: bool,
         accuracy: str,
         discount: str,
-    ):
+    ) -> Invoice:
         """
         Asynchronously creates a new invoice.
 
@@ -115,7 +121,7 @@ class AsyncClient(BaseClient):
             discount (str): The discount.
 
         Returns:
-            dict: The created invoice data.
+             Invoice DTO: The created invoice data.
         """
         data = {
             "orderId": order_id,
@@ -126,9 +132,10 @@ class AsyncClient(BaseClient):
             "accuracy": accuracy,
             "discount": discount,
         }
-        return await self._post_request('invoice', json=data)
+        response_data = await self._post_request('invoice', json=data)
+        return Invoice(**response_data)
 
-    async def create_wallet(self, order_id: str):
+    async def create_wallet(self, order_id: str) -> Wallet:
         """
         Asynchronously creates a new wallet.
 
@@ -136,12 +143,13 @@ class AsyncClient(BaseClient):
             order_id (str): The order ID.
 
         Returns:
-            dict: The created wallet data.
+             Wallet DTO: The created wallet data.
         """
         data = {
             "orderId": order_id
         }
-        return await self._post_request('wallet', json=data)
+        response_data = await self._post_request('wallet', json=data)
+        return Wallet(**response_data)
 
 
     async def close(self):

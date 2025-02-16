@@ -1,5 +1,6 @@
 from chiefpay.base import BaseClient
 from chiefpay.constants import *
+from chiefpay.types import Rate
 
 
 class BaseSocketClient(BaseClient):
@@ -17,13 +18,13 @@ class BaseSocketClient(BaseClient):
             base_url (str): Base URL for the API endpoints.
         """
         super().__init__(api_key, base_url)
-        self.rates = None
+        self.rates: list[Rate] = None
         self.notifications = []
 
     def _init_session(self):
         return None
 
-    def get_latest_rates(self):
+    def get_latest_rates(self) -> list[Rate] | None:
         """
         Retrieves the latest exchange rates.
 
@@ -32,7 +33,7 @@ class BaseSocketClient(BaseClient):
         """
         return self.rates
 
-    def get_notifications(self):
+    def get_notifications(self) -> list:
         """
         Retrieves a list of notifications.
 
