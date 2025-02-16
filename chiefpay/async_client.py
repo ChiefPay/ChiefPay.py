@@ -1,6 +1,7 @@
 import aiohttp
 from typing import Dict, Optional
 from chiefpay.base import BaseClient
+from chiefpay.constants import Endpoints
 from chiefpay.exceptions import APIError, HTTPError
 from chiefpay.types import Rate, History, Wallet, Invoice
 from chiefpay.utils import Utils
@@ -44,7 +45,7 @@ class AsyncClient(BaseClient):
         Returns:
              Rate DTO: The exchange rate data.
         """
-        rates = await self._get_request("rates")
+        rates = await self._get_request(Endpoints.rates)
         return [Rate(**rate) for rate in rates]
 
     async def get_invoice(self, id: str, order_id: str) -> Invoice:
@@ -59,7 +60,7 @@ class AsyncClient(BaseClient):
              Invoice DTO: The invoice data.
         """
         params = {"id": id, "orderId": order_id}
-        response_data = await self._get_request("invoice", params)
+        response_data = await self._get_request(Endpoints.invoice, params)
         return Invoice(**response_data)
 
     async def get_history(self, from_date: str, to_date: Optional[str] = None) -> list[History]:
@@ -79,7 +80,7 @@ class AsyncClient(BaseClient):
             Utils.validate_date(to_date)
 
         params = {"fromDate": from_date, "toDate": to_date}
-        response_data = await self._get_request("history", params)
+        response_data = await self._get_request(Endpoints.history, params)
         return [History(**history) for history in response_data]
 
     async def get_wallet(self, id: str, order_id: str) -> Wallet:
@@ -94,7 +95,7 @@ class AsyncClient(BaseClient):
              Wallet DTO: The wallet data.
         """
         params = {"id": id, "orderId": order_id}
-        response_data = await self._get_request("wallet", params)
+        response_data = await self._get_request(Endpoints.wallet, params)
         return Wallet(**response_data)
 
 
@@ -132,7 +133,7 @@ class AsyncClient(BaseClient):
             "accuracy": accuracy,
             "discount": discount,
         }
-        response_data = await self._post_request('invoice', json=data)
+        response_data = await self._post_request(Endpoints.invoice, json=data)
         return Invoice(**response_data)
 
     async def create_wallet(self, order_id: str) -> Wallet:
@@ -148,7 +149,7 @@ class AsyncClient(BaseClient):
         data = {
             "orderId": order_id
         }
-        response_data = await self._post_request('wallet', json=data)
+        response_data = await self._post_request(Endpoints.wallet, json=data)
         return Wallet(**response_data)
 
 

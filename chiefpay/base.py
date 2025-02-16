@@ -1,6 +1,6 @@
 from aiohttp import ClientSession
 from requests import Session
-from chiefpay.constants import BASE_URL, ENDPOINTS
+from chiefpay.constants import BASE_URL, Endpoints
 from typing import Union
 
 
@@ -28,6 +28,6 @@ class BaseClient:
     def _init_session(self):
         raise NotImplementedError
 
-    def _get_url(self, path: str):
-        url = self.base_url + ENDPOINTS.get(path)
+    def _get_url(self, endpoint: Endpoints):
+        url = self.base_url + endpoint.value[0]
         return url

@@ -7,7 +7,7 @@ class BaseSocketClient(BaseClient):
     """
     Base class for interacting with the payment system via WebSockets.
     """
-    PATH = API_VERSION + ENDPOINTS.get('socket')
+    PATH = API_VERSION + Endpoints.socket.value
 
     def __init__(self, api_key: str, base_url: str = BASE_URL):
         """

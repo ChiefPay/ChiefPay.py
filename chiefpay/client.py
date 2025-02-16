@@ -2,6 +2,7 @@ import requests
 from typing import Dict, Optional
 
 from chiefpay.base import BaseClient
+from chiefpay.constants import Endpoints
 from chiefpay.exceptions import HTTPError, APIError
 from chiefpay.types import History, Wallet, Invoice, Rate
 from chiefpay.utils import Utils
@@ -44,7 +45,7 @@ class Client(BaseClient):
         Returns:
              Rate DTO: The exchange rate data.
         """
-        response_data = self._get_request("rates")
+        response_data = self._get_request(Endpoints.rates)
         return [Rate(**rate) for rate in response_data]
 
     def get_invoice(self, id: str, order_id: str) -> Invoice:
@@ -59,7 +60,7 @@ class Client(BaseClient):
              Invoice DTO: The invoice data.
         """
         params = {"id": id, "orderId": order_id}
-        response_data = self._get_request("invoice", params)
+        response_data = self._get_request(Endpoints.invoice, params)
         return Invoice(**response_data)
 
     def get_history(self, from_date: str, to_date: Optional[str] = None) -> list[History]:
@@ -79,7 +80,7 @@ class Client(BaseClient):
             Utils.validate_date(to_date)
 
         params = {"fromDate": from_date, "toDate": to_date}
-        response_data = self._get_request("history", params)
+        response_data = self._get_request(Endpoints.history, params)
         return [History(**history) for history in response_data]
 
     def get_wallet(self, id: str, order_id: str) -> Wallet:
@@ -95,7 +96,7 @@ class Client(BaseClient):
         """
 
         params = {"id": id, "orderId": order_id}
-        response_data = self._get_request("wallet", params)
+        response_data = self._get_request(Endpoints.wallet, params)
         return Wallet(**response_data)
 
 
@@ -134,7 +135,7 @@ class Client(BaseClient):
             "accuracy": accuracy,
             "discount": discount,
         }
-        return self._post_request('invoice', json=data)
+        return self._post_request(Endpoints.invoice, json=data)
 
     def create_wallet(self, order_id: str) -> Wallet:
         """
@@ -150,4 +151,4 @@ class Client(BaseClient):
         data = {
             "orderId": order_id
         }
-        return self._post_request('wallet', json=data)
+        return self._post_request(Endpoints.wallet, json=data)
