@@ -1,3 +1,4 @@
+from aiohttp import ClientSession
 from requests import Session
 from chiefpay.constants import BASE_URL, ENDPOINTS
 
@@ -9,7 +10,7 @@ class BaseClient:
             "Accept": "application/json",
             "X-Api-Key": self.api_key
         }
-        self.session: Session = self._init_session()
+        self.session: Session | ClientSession = self._init_session()
 
 
     def _init_session(self):
