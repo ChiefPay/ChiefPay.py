@@ -1,7 +1,8 @@
 import aiohttp
 import socketio
 
-from .base import BaseSocketClient
+from chiefpay.exceptions import SocketError
+from chiefpay.socket.base import BaseSocketClient
 
 class AsyncSocketClient(BaseSocketClient):
     def __init__(self, api_key: str):
@@ -37,8 +38,7 @@ class AsyncSocketClient(BaseSocketClient):
                 socketio_path=self.PATH,
             )
         except Exception as e:
-            raise e
+            raise SocketError(f"Failed to connect to Socket.IO server: {e}")
 
     async def disconnect(self):
-
         await self.sio.disconnect()

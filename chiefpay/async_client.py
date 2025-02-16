@@ -1,6 +1,7 @@
 import aiohttp
 from typing import Dict, Optional
 from chiefpay.base import BaseClient
+from chiefpay.exceptions import APIError, HTTPError
 
 
 class AsyncClient(BaseClient):
@@ -25,11 +26,13 @@ class AsyncClient(BaseClient):
     @staticmethod
     async def _handle_response(response: aiohttp.ClientResponse):
         if not (200 <= response.status < 300):
-            print(f"{response.status=}")  # raise self exception
+            text = await response.text()
+            raise HTTPError(response.status, text)
         try:
             return await response.json()
-        except ValueError as e:
-            raise e  # raise self exception
+        except ValueError:
+            raise APIError("Invalid JSON response")
+
 
     async def get_rates(self):
         return await self._get_request("rates")

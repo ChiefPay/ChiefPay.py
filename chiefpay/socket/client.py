@@ -1,6 +1,7 @@
 import requests
 import socketio
 
+from chiefpay.exceptions import SocketError
 from chiefpay.socket.base import BaseSocketClient
 
 
@@ -37,7 +38,7 @@ class SocketClient(BaseSocketClient):
                 self.URL, headers={"X-Api-Key": self.api_key}, socketio_path=self.PATH
             )
         except Exception as e:
-            raise e
+            raise SocketError(f"Failed to connect to Socket.IO server: {e}")
 
     def disconnect(self):
         self.sio.disconnect()

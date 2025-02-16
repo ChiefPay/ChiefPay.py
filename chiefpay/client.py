@@ -3,6 +3,7 @@ import urllib3
 from typing import Dict, Optional
 
 from chiefpay.base import BaseClient
+from chiefpay.exceptions import HTTPError, APIError
 
 
 urllib3.disable_warnings()
@@ -27,11 +28,11 @@ class Client(BaseClient):
     @staticmethod
     def _handle_response(response: requests.Response):
         if not (200 <= response.status_code < 300):
-            print(f"{response.status_code=}") # raise self exception
+            raise HTTPError(response.status_code, response.text)
         try:
             return response.json()
-        except ValueError as e:
-            raise e # raise self exception
+        except ValueError:
+            raise APIError("Invalid JSON response")
 
 
     def get_rates(self):
