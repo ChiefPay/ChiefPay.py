@@ -4,7 +4,11 @@ from chiefpay.constants import BASE_URL
 from chiefpay.exceptions import SocketError
 from chiefpay.socket.base import BaseSocketClient
 
+
 class AsyncSocketClient(BaseSocketClient):
+    """
+    Client for interacting with the payment system via WebSockets (asynchronous).
+    """
     def __init__(self, api_key: str, base_url: str = BASE_URL):
         super().__init__(api_key, base_url)
         self.sio = socketio.AsyncClient()
@@ -28,6 +32,12 @@ class AsyncSocketClient(BaseSocketClient):
             self.notifications.append(data)
 
     async def connect(self):
+        """
+        Asynchronously connects to the Socket.IO server.
+
+        Raises:
+            SocketError: If the connection fails.
+        """
         try:
             await self.sio.connect(
                 self.base_url,
@@ -38,4 +48,7 @@ class AsyncSocketClient(BaseSocketClient):
             raise SocketError(f"Failed to connect to Socket.IO server: {e}")
 
     async def disconnect(self):
+        """
+        Asynchronously disconnects from the Socket.IO server.
+        """
         await self.sio.disconnect()

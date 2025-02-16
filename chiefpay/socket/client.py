@@ -6,6 +6,9 @@ from chiefpay.socket.base import BaseSocketClient
 
 
 class SocketClient(BaseSocketClient):
+    """
+    Client for interacting with the payment system via WebSockets (synchronous).
+    """
     def __init__(self, api_key: str, base_url: str = BASE_URL):
         super().__init__(api_key, base_url)
         self.sio = socketio.Client()
@@ -29,6 +32,12 @@ class SocketClient(BaseSocketClient):
             self.notifications.append(data)
 
     def connect(self):
+        """
+        Connects to the Socket.IO server.
+
+        Raises:
+            SocketError: If the connection fails.
+        """
         try:
             self.sio.connect(
                 self.base_url, headers={"X-Api-Key": self.api_key}, socketio_path=self.PATH
@@ -37,4 +46,7 @@ class SocketClient(BaseSocketClient):
             raise SocketError(f"Failed to connect to Socket.IO server: {e}")
 
     def disconnect(self):
+        """
+        Disconnects from the Socket.IO server.
+        """
         self.sio.disconnect()
