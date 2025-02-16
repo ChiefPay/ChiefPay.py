@@ -19,6 +19,11 @@ class Client(BaseClient):
         response = self.session.get(url, params=params, verify=False)
         return self._handle_response(response)
 
+    def _post_request(self, path: str, json: Optional[Dict] = None):
+        url = self._get_url(path)
+        response = self.session.post(url, json=json)
+        return self._handle_response(response)
+
     @staticmethod
     def _handle_response(response: requests.Response):
         if not (200 <= response.status_code < 300):
@@ -43,3 +48,31 @@ class Client(BaseClient):
     def get_wallet(self, id: str, order_id: str):
         params = {"id": id, "orderId": order_id}
         return self._get_request("wallet", params)
+
+
+    def create_invoice(
+        self,
+        order_id: str,
+        description: str,
+        amount: str,
+        currency: str,
+        fee_included: bool,
+        accuracy: str,
+        discount: str,
+    ):
+        data = {
+            "orderId": order_id,
+            "description": description,
+            "amount": amount,
+            "currency": currency,
+            "feeIncluded": fee_included,
+            "accuracy": accuracy,
+            "discount": discount,
+        }
+        return self._post_request('invoice', json=data)
+
+    def create_wallet(self, order_id: str):
+        data = {
+            "orderId": order_id
+        }
+        return self._post_request('wallet', json=data)
