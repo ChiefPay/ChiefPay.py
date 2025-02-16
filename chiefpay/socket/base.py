@@ -3,11 +3,10 @@ from chiefpay.constants import *
 
 
 class BaseSocketClient(BaseClient):
-    URL = BASE_URL
     PATH = API_VERSION + ENDPOINTS.get('socket')
 
-    def __init__(self, api_key: str):
-        super().__init__(api_key)
+    def __init__(self, api_key: str, base_url: str = BASE_URL):
+        super().__init__(api_key, base_url)
         self.rates = None
         self.notifications = []
 

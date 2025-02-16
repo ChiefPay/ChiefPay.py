@@ -1,16 +1,13 @@
-import aiohttp
 import socketio
 
+from chiefpay.constants import BASE_URL
 from chiefpay.exceptions import SocketError
 from chiefpay.socket.base import BaseSocketClient
 
 class AsyncSocketClient(BaseSocketClient):
-    def __init__(self, api_key: str):
-        super().__init__(api_key)
-
-        session = aiohttp.ClientSession(connector=aiohttp.TCPConnector(verify_ssl=False)) # Del
-
-        self.sio = socketio.AsyncClient(http_session=session)
+    def __init__(self, api_key: str, base_url: str = BASE_URL):
+        super().__init__(api_key, base_url)
+        self.sio = socketio.AsyncClient()
         self._setup_event_handlers()
 
     def _setup_event_handlers(self):
@@ -33,7 +30,7 @@ class AsyncSocketClient(BaseSocketClient):
     async def connect(self):
         try:
             await self.sio.connect(
-                self.URL,
+                self.base_url,
                 headers={"X-Api-Key": self.api_key},
                 socketio_path=self.PATH,
             )

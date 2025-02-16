@@ -1,5 +1,5 @@
 API_VERSION = "v1"
-BASE_URL = f"https://api_test.chiefpay.org/{API_VERSION}"
+BASE_URL = f"https://api.chiefpay.org/{API_VERSION}"
 ENDPOINTS = {
     'rates': '/rates',
     'history': '/history',

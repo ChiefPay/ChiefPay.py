@@ -6,11 +6,7 @@ from chiefpay.exceptions import APIError, HTTPError
 
 class AsyncClient(BaseClient):
     def _init_session(self):
-        connector = aiohttp.TCPConnector(   # Del
-            verify_ssl=False
-        )
-        session = aiohttp.ClientSession(headers=self.headers,
-                                        connector=connector)
+        session = aiohttp.ClientSession(headers=self.headers)
         return session
 
     async def _get_request(self, path: str, params: Optional[Dict] = None):

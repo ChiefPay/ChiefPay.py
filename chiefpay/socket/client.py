@@ -1,18 +1,14 @@
-import requests
 import socketio
 
+from chiefpay.constants import BASE_URL
 from chiefpay.exceptions import SocketError
 from chiefpay.socket.base import BaseSocketClient
 
 
 class SocketClient(BaseSocketClient):
-    def __init__(self, api_key: str):
-        super().__init__(api_key)
-
-        http_session = requests.Session()  # Del
-        http_session.verify = False  # Del
-
-        self.sio = socketio.Client(http_session=http_session)
+    def __init__(self, api_key: str, base_url: str = BASE_URL):
+        super().__init__(api_key, base_url)
+        self.sio = socketio.Client()
         self._setup_event_handlers()
 
     def _setup_event_handlers(self):
@@ -35,7 +31,7 @@ class SocketClient(BaseSocketClient):
     def connect(self):
         try:
             self.sio.connect(
-                self.URL, headers={"X-Api-Key": self.api_key}, socketio_path=self.PATH
+                self.base_url, headers={"X-Api-Key": self.api_key}, socketio_path=self.PATH
             )
         except Exception as e:
             raise SocketError(f"Failed to connect to Socket.IO server: {e}")
