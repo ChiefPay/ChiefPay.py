@@ -3,6 +3,7 @@ import socketio
 from chiefpay.constants import BASE_URL
 from chiefpay.exceptions import SocketError
 from chiefpay.socket.base import BaseSocketClient
+from chiefpay.types.notification import NotificationInvoice, NotificationTransaction
 
 
 class SocketClient(BaseSocketClient):
@@ -26,10 +27,13 @@ class SocketClient(BaseSocketClient):
         @self.sio.event
         def rates(data):
             self.rates = data
+            if self.on_rates:
+                self.on_rates(data)
 
         @self.sio.event
-        def notification(data):
-            self.notifications.append(data)
+        def notification(data: NotificationTransaction | NotificationInvoice):
+            if self.on_notification:
+                self.on_notification(data)
 
     def connect(self):
         """

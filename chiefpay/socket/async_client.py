@@ -26,10 +26,13 @@ class AsyncSocketClient(BaseSocketClient):
         @self.sio.event
         async def rates(data):
             self.rates = data
+            if self.on_rates:
+                await self.on_rates(data)
 
         @self.sio.event
         async def notification(data):
-            self.notifications.append(data)
+            if self.on_notification:
+                await self.on_notification(data)
 
     async def connect(self):
         """
