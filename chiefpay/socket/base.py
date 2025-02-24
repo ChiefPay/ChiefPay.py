@@ -27,7 +27,7 @@ class BaseSocketClient(BaseClient):
     def _init_session(self):
         return None
 
-    def set_on_notification(self, callback: Callable[[Union[NotificationInvoice, NotificationTransaction ]]]):
+    def set_on_notification(self, callback: Callable[[Union[NotificationInvoice, NotificationTransaction]], None]):
         """
         Sets a callback function to handle incoming notifications.
 
@@ -37,7 +37,7 @@ class BaseSocketClient(BaseClient):
         """
         self.on_notification = callback
 
-    def set_on_rates(self, callback: Callable[[Union[NotificationInvoice, NotificationTransaction ]]]):
+    def set_on_rates(self, callback: Callable[[Union[NotificationInvoice, NotificationTransaction]], None]):
         """
         Sets a callback function to handle incoming rates updates.
 
