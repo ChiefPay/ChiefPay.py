@@ -1,12 +1,10 @@
 from enum import Enum
 
-API_VERSION = "v1"
-BASE_URL = f"https://api.chiefpay.org/{API_VERSION}"
-
+BASE_URL = "https://api.chiefpay.org"
 
 class Endpoints(Enum):
-    rates = '/rates',
-    history = '/history',
-    invoice = '/invoice',
-    wallet = '/wallet',
-    socket = '/socket.io'
+    rates = '/v1/rates'
+    history = '/v1/history'
+    invoice = '/v1/invoice'
+    wallet = '/v1/wallet'
+    socket = '/socket.io'  # WebSocket endpoint
