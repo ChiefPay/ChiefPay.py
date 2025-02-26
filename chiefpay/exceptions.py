@@ -9,6 +9,10 @@ class HTTPError(ChiefPayError):
         super().__init__(f"HTTP Error: {status_code}: {message}")
 
 
+class ManyRequestsError(ChiefPayError):
+    pass
+
+
 class APIError(ChiefPayError):
     pass
 

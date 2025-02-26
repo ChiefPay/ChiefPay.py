@@ -2,9 +2,11 @@ import aiohttp
 from typing import Dict, Optional
 from chiefpay.base import BaseClient
 from chiefpay.constants import Endpoints
-from chiefpay.exceptions import APIError, HTTPError
+from chiefpay.exceptions import APIError, HTTPError, ManyRequestsError
 from chiefpay.types import Rate, History, Wallet, Invoice
 from chiefpay.utils import Utils
+
+from asyncio import sleep
 
 
 class AsyncClient(BaseClient):
@@ -16,24 +18,37 @@ class AsyncClient(BaseClient):
         session = aiohttp.ClientSession(headers=self.headers)
         return session
 
-    async def _get_request(self, path: str, params: Optional[Dict] = None):
+    async def _request(self, method: str, path: str, max_retries: int = 3, **kwargs):
         url = self._get_url(path)
-        async with self.session.get(url, params=params) as response:
-            return await self._handle_response(response)
+        for attempt in range(max_retries):
+            try:
+                async with self.session.request(method, url, **kwargs) as response:
+                    return await self._handle_response(response)
+            except ManyRequestsError:
+                if attempt == max_retries - 1:
+                    raise HTTPError(429, f"Too Many Requests after {max_retries} attempts")
+                continue
 
-    async def _post_request(self, path: str, json: Optional[Dict] = None):
-        url = self._get_url(path)
-        async with self.session.post(url, json=json) as response:
-            return await self._handle_response(response)
+    async def _get_request(self, path: str, params: Optional[Dict] = None, max_retries: int = 3):
+        return await self._request("GET", path, max_retries, params=params)
+
+    async def _post_request(self, path: str, json: Optional[Dict] = None, max_retries: int = 3):
+        return await self._request("POST", path, max_retries, json=json)
 
     @staticmethod
     async def _handle_response(response: aiohttp.ClientResponse):
+        if response.status == 429:
+            headers = response.headers
+            retry = int(headers.get('Retry-After-ms', '3000')) / 1000
+            await sleep(retry)
+            raise ManyRequestsError()
+
         if not (200 <= response.status < 300):
             text = await response.text()
             raise HTTPError(response.status, text)
         try:
             data = await response.json()
-            return data
+            return data.get('data')
         except ValueError:
             raise APIError("Invalid JSON response")
 

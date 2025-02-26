@@ -29,5 +29,5 @@ class BaseClient:
         raise NotImplementedError
 
     def _get_url(self, endpoint: Endpoints):
-        url = self.base_url + endpoint.value[0]
+        url = self.base_url + endpoint.value
         return url

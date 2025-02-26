@@ -1,9 +1,10 @@
 import requests
 from typing import Dict, Optional
+from time import sleep
 
 from chiefpay.base import BaseClient
 from chiefpay.constants import Endpoints
-from chiefpay.exceptions import HTTPError, APIError
+from chiefpay.exceptions import HTTPError, APIError, ManyRequestsError
 from chiefpay.types import History, Wallet, Invoice, Rate
 from chiefpay.utils import Utils
 
@@ -17,20 +18,34 @@ class Client(BaseClient):
         session.headers.update(self.headers)
         return session
 
-    def _get_request(self, path: str, params: Optional[Dict] = None):
+    def _request(self, method: str, path: str, max_retries: int = 3, **kwargs):
         url = self._get_url(path)
-        response = self.session.get(url, params=params)
-        return self._handle_response(response)
+        for attempt in range(max_retries):
+            response = self.session.request(method, url, **kwargs)
+            try:
+                return self._handle_response(response)
+            except ManyRequestsError:
+                if attempt == max_retries - 1:
+                    raise HTTPError(429, f"Too Many Requests after {max_retries} attempts")
+                continue
 
-    def _post_request(self, path: str, json: Optional[Dict] = None):
-        url = self._get_url(path)
-        response = self.session.post(url, json=json)
-        return self._handle_response(response)
+    def _get_request(self, path: str, params: Optional[Dict] = None, max_retries: int = 3):
+        return self._request("GET", path, max_retries, params=params)
+
+    def _post_request(self, path: str, json: Optional[Dict] = None, max_retries: int = 3):
+        return self._request("POST", path, max_retries, json=json)
 
     @staticmethod
     def _handle_response(response: requests.Response):
+        if response.status_code == 429:
+            headers = response.headers
+            retry = int(headers.get('Retry-After-ms', '3000')) / 1000
+            sleep(retry)
+            raise ManyRequestsError()
+
         if not (200 <= response.status_code < 300):
             raise HTTPError(response.status_code, response.text)
+
         try:
             data = response.json()
             return data.get('data')
