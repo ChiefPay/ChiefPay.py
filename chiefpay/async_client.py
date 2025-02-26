@@ -175,3 +175,10 @@ class AsyncClient(BaseClient):
         This should be called after all asynchronous requests are complete.
         """
         await self.session.close()
+
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, exc_type, exc, tb):
+        await self.close()

@@ -55,3 +55,11 @@ class AsyncSocketClient(BaseSocketClient):
         Asynchronously disconnects from the Socket.IO server.
         """
         await self.sio.disconnect()
+
+
+    async def __aenter__(self):
+        await self.connect()
+        return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        await self.disconnect()
