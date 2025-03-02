@@ -63,7 +63,7 @@ class Client(BaseClient):
         response_data = self._get_request(Endpoints.rates)
         return [Rate(**rate) for rate in response_data]
 
-    def get_invoice(self, id: str, order_id: str) -> Invoice:
+    def get_invoice(self, id: Optional[str] = None, order_id: Optional[str] = None) -> Invoice:
         """
         Retrieves information about a specific invoice.
 
@@ -74,7 +74,10 @@ class Client(BaseClient):
         Returns:
              Invoice DTO: The invoice data.
         """
-        params = {"id": id, "orderId": order_id}
+        if id:
+            params = {"id": id}
+        elif order_id:
+            params = {"orderId": order_id}
         response_data = self._get_request(Endpoints.invoice, params)
         return Invoice(**response_data)
 
