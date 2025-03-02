@@ -1,12 +1,12 @@
 from pydantic import BaseModel, Field
-from typing import List
+from typing import List, Optional
 
 
 class Address(BaseModel):
     chain: str
     token: str
     address: str
-    token_rate: str = Field(alias='tokenRate')
+    token_rate: Optional[str] = Field(alias='tokenRate', default=None)
 
 
 class FiatDetails(BaseModel):
@@ -33,7 +33,7 @@ class Invoice(BaseModel):
     addresses: List[Address]
     description: str
     amount: str
-    fiat_details: List[FiatDetails] = Field(alias="FiatDetails")
+    fiat_details: Optional[List[FiatDetails]] = Field(alias="FiatDetails", default=None)
 
     class Config:
         populate_by_name = True

@@ -5,7 +5,7 @@ from time import sleep
 from chiefpay.base import BaseClient
 from chiefpay.constants import Endpoints
 from chiefpay.exceptions import HTTPError, APIError, ManyRequestsError
-from chiefpay.types import History, Wallet, Invoice, Rate
+from chiefpay.types import Rate, Wallet, Invoice, InvoicesHistory, TransactionsHistory, Transaction
 from chiefpay.utils import Utils
 
 
@@ -78,7 +78,31 @@ class Client(BaseClient):
         response_data = self._get_request(Endpoints.invoice, params)
         return Invoice(**response_data)
 
-    def get_history(self, from_date: str, to_date: Optional[str] = None) -> list[History]:
+    def get_invoices(self, from_date: str, to_date: Optional[str] = None, limit: int = 100) -> InvoicesHistory:
+        """
+        Retrieves invoices history within a given date range.
+
+        Parameters:
+            from_date (str): The start date.
+            to_date (str, optional): The end date.
+            Format: ISO 8601 (YYYY-MM-DDTHH:MM:SS.sssZ)
+
+        Returns:
+             Invoice DTO: The transaction history.
+        """
+        Utils.validate_date(from_date)
+        if to_date:
+            Utils.validate_date(to_date)
+
+        params = {"fromDate": from_date, "toDate": to_date, "limit": limit}
+        response_data = self._get_request(Endpoints.invoices_history, params)
+        invoices = [Invoice(**data) for data in response_data.get('invoices')]
+        return InvoicesHistory(
+            invoices=invoices,
+            totalCount=response_data.get('totalCount')
+        )
+
+    def get_transactions(self, from_date: str, to_date: Optional[str] = None, limit: int = 100) -> TransactionsHistory:
         """
         Retrieves transaction history within a given date range.
 
@@ -88,29 +112,39 @@ class Client(BaseClient):
             Format: ISO 8601 (YYYY-MM-DDTHH:MM:SS.sssZ)
 
         Returns:
-             History DTO: The transaction history.
+             Transaction DTO: The transaction history.
         """
         Utils.validate_date(from_date)
         if to_date:
             Utils.validate_date(to_date)
 
-        params = {"fromDate": from_date, "toDate": to_date}
-        response_data = self._get_request(Endpoints.history, params)
-        return [History(**history) for history in response_data]
+        params = {"fromDate": from_date, "toDate": to_date, "limit": limit}
+        response_data = self._get_request(Endpoints.transactions_history, params)
+        transactions = [Transaction(**data) for data in response_data.get('transactions')]
+        return TransactionsHistory(
+            transactions=transactions,
+            totalCount=response_data.get('totalCount')
+        )
 
-    def get_wallet(self, id: str, order_id: str) -> Wallet:
+
+    def get_wallet(self, id: Optional[str] = None, order_id: Optional[str] = None) -> Wallet:
         """
-        Retrieves information about a wallet.
+        Retrieve wallet information based on wallet ID or order ID.
 
-        Parameters:
-            id (str): The wallet ID.
-            order_id (str): The order ID.
+        Args:
+            id (Optional[str]): The ID of the wallet to retrieve.
+            order_id (Optional[str]): The order ID associated with the wallet to retrieve.
 
         Returns:
-             Wallet DTO: The created wallet data.
-        """
+            Wallet: An instance of the Wallet class containing the wallet information.
 
-        params = {"id": id, "orderId": order_id}
+        Raises:
+            ValueError: If neither `id` nor `order_id` is provided.
+        """
+        if id:
+            params = {"id": id}
+        elif order_id:
+            params = {"orderId": order_id}
         response_data = self._get_request(Endpoints.wallet, params)
         return Wallet(**response_data)
 
