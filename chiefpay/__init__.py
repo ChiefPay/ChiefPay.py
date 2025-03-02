@@ -1,7 +1,7 @@
 __all__ = (
     'Client',
-    'ChiefPay',
-    'AsyncChiefPay',
+    'ChiefPayClient',
+    'AsyncChiefPayClient',
     'AsyncClient',
     'SocketClient',
     'AsyncSocketClient'
@@ -12,4 +12,4 @@ from chiefpay.client import Client
 from chiefpay.async_client import AsyncClient
 from chiefpay.socket.client import SocketClient
 from chiefpay.socket.async_client import AsyncSocketClient
-from chiefpay.classes import ChiefPay, AsyncChiefPay
+from chiefpay.classes import ChiefPayClient, AsyncChiefPayClient
