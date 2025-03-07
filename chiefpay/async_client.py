@@ -15,8 +15,7 @@ class AsyncClient(BaseClient):
     """
 
     def _init_session(self):
-        session = aiohttp.ClientSession(headers=self.headers)
-        return session
+        return aiohttp.ClientSession(headers=self.headers)
 
     async def _request(self, method: str, path: str, max_retries: int = 3, **kwargs):
         url = self._get_url(path)

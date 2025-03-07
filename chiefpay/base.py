@@ -22,12 +22,15 @@ class BaseClient:
             "Accept": "application/json",
             "X-Api-Key": self.api_key
         }
-        self.session: Union[Session, ClientSession] = self._init_session()
+        self.session: Union[Session, ClientSession] = None
 
 
     def _init_session(self):
         raise NotImplementedError
 
     def _get_url(self, endpoint: Endpoints):
+        if not self.session:
+            self.session = self._init_session()
+
         url = self.base_url + endpoint.value
         return url
