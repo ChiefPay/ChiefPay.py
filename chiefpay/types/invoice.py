@@ -5,6 +5,7 @@ from typing import List, Optional
 class Address(BaseModel):
     chain: str
     token: str
+    method_name: str = Field(alias='methodName')
     address: str
     token_rate: Optional[str] = Field(alias='tokenRate', default=None)
 
@@ -32,7 +33,7 @@ class Invoice(BaseModel):
     status: str
     addresses: List[Address]
     description: str
-    amount: str
+    amount: Optional[str] = Field(default="0")
     fiat_details: Optional[List[FiatDetails]] = Field(alias="FiatDetails", default=None)
 
     class Config:
