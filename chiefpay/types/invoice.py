@@ -33,7 +33,7 @@ class Invoice(BaseModel):
     status: str
     addresses: List[Address]
     description: str
-    amount: str
+    amount: Optional[str] = Field(default="0")
     fiat_details: Optional[List[FiatDetails]] = Field(alias="FiatDetails", default=None)
 
     class Config:
