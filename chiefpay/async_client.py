@@ -28,10 +28,14 @@ class AsyncClient(BaseClient):
                     raise HTTPError(429, f"Too Many Requests after {max_retries} attempts")
                 continue
 
-    async def _get_request(self, path: str, params: Optional[Dict] = None, max_retries: int = 3):
+    async def _get_request(self, path: str, params: Optional[Dict] = {}, max_retries: int = 3):
+        params = {k: v for k, v in params.items() if v is not None}
+
         return await self._request("GET", path, max_retries, params=params)
 
-    async def _post_request(self, path: str, json: Optional[Dict] = None, max_retries: int = 3):
+    async def _post_request(self, path: str, json: Optional[Dict] = {}, max_retries: int = 3):
+        json = {k: v for k, v in json.items() if v is not None}
+
         return await self._request("POST", path, max_retries, json=json)
 
     @staticmethod
@@ -73,10 +77,11 @@ class AsyncClient(BaseClient):
         Returns:
              Invoice DTO: The invoice data.
         """
-        if id:
-            params = {"id": id}
-        elif order_id:
-            params = {"orderId": order_id}
+        params = {
+            "id": id,
+            "orderId": order_id
+        }
+
         response_data = await self._get_request(Endpoints.invoice, params)
         return Invoice(**response_data)
 
@@ -97,9 +102,11 @@ class AsyncClient(BaseClient):
         if to_date:
             Utils.validate_date(to_date)
 
-        params = {"fromDate": from_date, "limit": limit}
-        if to_date:
-            params["toDate"] = to_date
+        params = {
+            "fromDate": from_date, 
+            "limit": limit, 
+            "toDate": to_date
+        }
 
         response_data = await self._get_request(Endpoints.invoices_history, params)
         invoices = [Invoice(**data) for data in response_data.get('invoices')]
@@ -124,9 +131,11 @@ class AsyncClient(BaseClient):
         if to_date:
             Utils.validate_date(to_date)
 
-        params = {"fromDate": from_date, "limit": limit}
-        if to_date:
-            params["toDate"] = to_date
+        params = {
+            "fromDate": from_date, 
+            "limit": limit, 
+            "toDate": to_date
+        }
 
         response_data = await self._get_request(Endpoints.transactions_history, params)
         transactions = [Transaction(**data) for data in response_data.get('transactions')]
@@ -146,10 +155,11 @@ class AsyncClient(BaseClient):
         Raises:
             ValueError: If neither `id` nor `order_id` is provided.
         """
-        if id:
-            params = {"id": id}
-        elif order_id:
-            params = {"orderId": order_id}
+        params = {
+            "id": id,
+            "orderId": order_id
+        }
+
         response_data = await self._get_request(Endpoints.wallet, params)
         return Wallet(**response_data)
 
@@ -157,12 +167,12 @@ class AsyncClient(BaseClient):
     async def create_invoice(
         self,
         order_id: str,
-        description: str,
-        amount: str,
-        currency: str,
-        fee_included: bool,
-        accuracy: str,
-        discount: str,
+        description: Optional[str] = None,
+        amount: Optional[float] = None,
+        currency: Optional[str] = "USD",
+        fee_included: Optional[bool] = False,
+        accuracy: Optional[float] = None,
+        discount: Optional[float] = None,
     ) -> Invoice:
         """
         Asynchronously creates a new invoice.
@@ -170,11 +180,11 @@ class AsyncClient(BaseClient):
         Parameters:
             order_id (str): The order ID.
             description (str): The invoice description.
-            amount (str): The amount.
+            amount (float): The amount.
             currency (str): The currency.
             fee_included (bool): Whether the fee is included in the amount.
-            accuracy (str): The accuracy level.
-            discount (str): The discount.
+            accuracy (float): The accuracy level.
+            discount (float): The discount.
 
         Returns:
              Invoice DTO: The created invoice data.
@@ -188,6 +198,7 @@ class AsyncClient(BaseClient):
             "accuracy": accuracy,
             "discount": discount,
         }
+
         response_data = await self._post_request(Endpoints.invoice, json=data)
         return Invoice(**response_data)
 
@@ -204,6 +215,7 @@ class AsyncClient(BaseClient):
         data = {
             "orderId": order_id
         }
+
         response_data = await self._post_request(Endpoints.wallet, json=data)
         return Wallet(**response_data)
 
