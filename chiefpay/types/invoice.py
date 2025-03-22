@@ -35,6 +35,7 @@ class Invoice(BaseModel):
     description: str
     amount: Optional[str] = Field(default="0")
     fiat_details: Optional[List[FiatDetails]] = Field(alias="FiatDetails", default=None)
+    url: str
 
     class Config:
         populate_by_name = True
