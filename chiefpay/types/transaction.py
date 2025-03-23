@@ -13,3 +13,8 @@ class Transaction(BaseModel):
     wallet: Wallet
     created_at: str = Field(alias='createdAt')
     block_created_at: str = Field(alias='blockCreatedAt')
+
+
+class LastTransaction(BaseModel):
+    chain: str
+    txid: str

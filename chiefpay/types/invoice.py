@@ -2,6 +2,7 @@ from pydantic import BaseModel, Field
 from typing import List, Optional
 
 from chiefpay.types.enums import InvoiceStatus
+from chiefpay.types.transaction import LastTransaction
 
 
 class Address(BaseModel):
@@ -37,6 +38,7 @@ class Invoice(BaseModel):
     description: Optional[str] = Field(default=None)
     amount: Optional[str] = Field(default="0")
     fiat_details: Optional[List[FiatDetails]] = Field(alias="FiatDetails", default=None)
+    last_transaction: Optional[LastTransaction] = Field(alias="lastTransaction", default=None)
     url: str
 
     class Config:
