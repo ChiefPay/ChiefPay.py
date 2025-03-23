@@ -40,6 +40,8 @@ class Invoice(BaseModel):
     fiat_details: Optional[List[FiatDetails]] = Field(alias="FiatDetails", default=None)
     last_transaction: Optional[LastTransaction] = Field(alias="lastTransaction", default=None)
     url: str
+    url_success: Optional[str] = Field(alias="urlSuccess", default=None)
+    url_return: Optional[str] = Field(alias="urlReturn", default=None)
 
     class Config:
         populate_by_name = True

@@ -103,8 +103,8 @@ class AsyncClient(BaseClient):
             Utils.validate_date(to_date)
 
         params = {
-            "fromDate": from_date, 
-            "limit": limit, 
+            "fromDate": from_date,
+            "limit": limit,
             "toDate": to_date
         }
 
@@ -132,8 +132,8 @@ class AsyncClient(BaseClient):
             Utils.validate_date(to_date)
 
         params = {
-            "fromDate": from_date, 
-            "limit": limit, 
+            "fromDate": from_date,
+            "limit": limit,
             "toDate": to_date
         }
 
@@ -173,6 +173,8 @@ class AsyncClient(BaseClient):
         fee_included: Optional[bool] = False,
         accuracy: Optional[float] = None,
         discount: Optional[float] = None,
+        url_return: Optional[str] = None,
+        url_success: Optional[str] = None
     ) -> Invoice:
         """
         Asynchronously creates a new invoice.
@@ -197,6 +199,8 @@ class AsyncClient(BaseClient):
             "feeIncluded": fee_included,
             "accuracy": accuracy,
             "discount": discount,
+            "urlReturn": url_return,
+            "urlSuccess": url_success
         }
 
         response_data = await self._post_request(Endpoints.invoice, json=data)

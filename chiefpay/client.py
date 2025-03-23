@@ -161,6 +161,8 @@ class Client(BaseClient):
         fee_included: Optional[bool] = False,
         accuracy: Optional[float] = None,
         discount: Optional[float] = None,
+        url_return: Optional[str] = None,
+        url_success: Optional[str] = None
     ) -> Invoice:
         """
         Creates a new invoice.
@@ -186,6 +188,8 @@ class Client(BaseClient):
             "feeIncluded": fee_included,
             "accuracy": accuracy,
             "discount": discount,
+            "urlReturn": url_return,
+            "urlSuccess": url_success
         }
 
         response_data = self._post_request(Endpoints.invoice, json=data)
