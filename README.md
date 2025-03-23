@@ -45,7 +45,23 @@ with SocketClient(api_key="your_api_key") as client:
     client.set_on_notification(on_notification)
     input("Press Enter to exit...")
 ```
+### Asynchronous WebSocket Client
 
+```python
+import asyncio
+from chiefpay import AsyncSocketClient
+
+async def on_notification(data):
+    print("New notification:", data)
+
+async def main():
+    async with AsyncSocketClient(api_key="your_api_key") as client:
+        client.set_on_notification(on_notification)
+        print("Asynchronous WebSocket client started. Waiting for events...")
+        await asyncio.sleep(60)
+
+asyncio.run(main())
+```
 ## Examples
 
 For comprehensive examples, including advanced use cases, check out the examples directory
