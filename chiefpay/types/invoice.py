@@ -1,6 +1,8 @@
 from pydantic import BaseModel, Field
 from typing import List, Optional
 
+from chiefpay.types.enums import InvoiceStatus
+
 
 class Address(BaseModel):
     chain: str
@@ -30,9 +32,9 @@ class Invoice(BaseModel):
     fee_rate: str = Field(alias="feeRate")
     created_at: str = Field(alias="createdAt")
     expired_at: str = Field(alias="expiredAt")
-    status: str
+    status: InvoiceStatus
     addresses: List[Address]
-    description: str
+    description: Optional[str] = Field(default=None)
     amount: Optional[str] = Field(default="0")
     fiat_details: Optional[List[FiatDetails]] = Field(alias="FiatDetails", default=None)
     url: str
