@@ -155,12 +155,12 @@ class Client(BaseClient):
     def create_invoice(
         self,
         order_id: str,
-        description: str,
-        amount: str,
-        currency: str,
-        fee_included: bool,
-        accuracy: str,
-        discount: str,
+        description: Optional[str] = None,
+        amount: Optional[float] = None,
+        currency: Optional[str] = "USD",
+        fee_included: Optional[bool] = False,
+        accuracy: Optional[float] = None,
+        discount: Optional[float] = None,
     ) -> Invoice:
         """
         Creates a new invoice.
@@ -187,7 +187,9 @@ class Client(BaseClient):
             "accuracy": accuracy,
             "discount": discount,
         }
-        return self._post_request(Endpoints.invoice, json=data)
+
+        response_data = self._post_request(Endpoints.invoice, json=data)
+        return Invoice(**response_data)
 
     def create_wallet(self, order_id: str) -> Wallet:
         """
@@ -203,4 +205,6 @@ class Client(BaseClient):
         data = {
             "orderId": order_id
         }
-        return self._post_request(Endpoints.wallet, json=data)
+
+        response_data = self._post_request(Endpoints.wallet, json=data)
+        return Wallet(**response_data)
