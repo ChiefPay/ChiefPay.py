@@ -1,6 +1,6 @@
 from typing import Callable, Union
 from chiefpay.base import BaseClient
-from chiefpay.constants import *
+from chiefpay.constants import BASE_URL, Endpoints
 from chiefpay.types import Rate
 from chiefpay.types.notification import NotificationInvoice, NotificationTransaction
 
