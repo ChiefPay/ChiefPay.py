@@ -2,7 +2,7 @@ import aiohttp
 from typing import Dict, Optional
 from chiefpay.base import BaseClient
 from chiefpay.constants import Endpoints
-from chiefpay.exceptions import APIError, HTTPError, ManyRequestsError
+from chiefpay.exceptions import APIError, InvalidJSONError, ManyRequestsError, TransportError
 from chiefpay.types import Rate, Wallet, Invoice, InvoicesHistory, TransactionsHistory, Transaction
 from chiefpay.utils import Utils
 
@@ -25,7 +25,7 @@ class AsyncClient(BaseClient):
                     return await self._handle_response(response)
             except ManyRequestsError:
                 if attempt == max_retries - 1:
-                    raise HTTPError(429, f"Too Many Requests after {max_retries} attempts")
+                    raise ManyRequestsError() from None
                 continue
 
     async def _get_request(self, path: str, params: Optional[Dict] = {}, max_retries: int = 3):
@@ -48,12 +48,25 @@ class AsyncClient(BaseClient):
 
         if not (200 <= response.status < 300):
             text = await response.text()
-            raise HTTPError(response.status, text)
+            try:
+                error_data = await response.json()
+                if error_data.get("status") == "error" and "message" in error_data:
+                    message_data = error_data["message"]
+                    raise APIError(
+                        status_code=response.status,
+                        message=message_data.get("message", "Unknown error"),
+                        code=message_data.get("code"),
+                        fields=message_data.get("fields")
+                    )
+                raise TransportError(response.status, text)
+            except ValueError:
+                raise InvalidJSONError()
+
         try:
             data = await response.json()
             return data.get('data')
         except ValueError:
-            raise APIError("Invalid JSON response")
+            raise InvalidJSONError()
 
 
     async def get_rates(self) -> list[Rate]:

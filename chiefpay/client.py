@@ -4,7 +4,7 @@ from time import sleep
 
 from chiefpay.base import BaseClient
 from chiefpay.constants import Endpoints
-from chiefpay.exceptions import HTTPError, APIError, ManyRequestsError
+from chiefpay.exceptions import APIError, InvalidJSONError, ManyRequestsError, TransportError
 from chiefpay.types import Rate, Wallet, Invoice, InvoicesHistory, TransactionsHistory, Transaction
 from chiefpay.utils import Utils
 
@@ -26,7 +26,7 @@ class Client(BaseClient):
                 return self._handle_response(response)
             except ManyRequestsError:
                 if attempt == max_retries - 1:
-                    raise HTTPError(429, f"Too Many Requests after {max_retries} attempts")
+                    raise ManyRequestsError() from None
                 continue
 
     def _get_request(self, path: str, params: Optional[Dict] = None, max_retries: int = 3):
@@ -44,13 +44,25 @@ class Client(BaseClient):
             raise ManyRequestsError()
 
         if not (200 <= response.status_code < 300):
-            raise HTTPError(response.status_code, response.text)
+            try:
+                error_data = response.json()
+                if error_data.get("status") == "error" and "message" in error_data:
+                    message_data = error_data["message"]
+                    raise APIError(
+                        status_code=response.status_code,
+                        message=message_data.get("message", "Unknown error"),
+                        code=message_data.get("code"),
+                        fields=message_data.get("fields")
+                    )
+                raise TransportError(response.status_code, response.text)
+            except ValueError:
+                raise InvalidJSONError()
 
         try:
             data = response.json()
             return data.get('data')
         except ValueError:
-            raise APIError("Invalid JSON response")
+            raise InvalidJSONError()
 
 
     def get_rates(self) -> list[Rate]:
