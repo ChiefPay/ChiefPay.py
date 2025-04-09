@@ -29,14 +29,28 @@ class AsyncClient(BaseClient):
                 continue
 
     async def _get_request(self, path: str, params: Optional[Dict] = {}, max_retries: int = 3):
-        params = {k: v for k, v in params.items() if v is not None}
+        params = self._get_json(params)
 
         return await self._request("GET", path, max_retries, params=params)
 
     async def _post_request(self, path: str, json: Optional[Dict] = {}, max_retries: int = 3):
-        json = {k: v for k, v in json.items() if v is not None}
+        json = self._get_json(json)
 
         return await self._request("POST", path, max_retries, json=json)
+
+    async def _patch_request(self, path: str, json: Optional[Dict] = {}, max_retries: int = 3):
+        json = self._get_json(json)
+
+        return await self._request("PATCH", path, max_retries, json=json)
+
+    async def _delete_request(self, path: str, json: Optional[Dict] = {}, max_retries: int = 3):
+        json = self._get_json(json)
+
+        return await self._request("DELETE", path, max_retries, json=json)
+
+
+    def _get_json(self, data: Dict = {}):
+        return {k: v for k, v in data.items() if v is not None}
 
     @staticmethod
     async def _handle_response(response: aiohttp.ClientResponse):
@@ -49,7 +63,8 @@ class AsyncClient(BaseClient):
         if not (200 <= response.status < 300):
             text = await response.text()
             try:
-                error_data = await response.json()
+                content_type = response.headers.get('Content-Type', '')
+                error_data = await response.json(content_type=content_type)
                 if error_data.get("status") == "error" and "message" in error_data:
                     message_data = error_data["message"]
                     raise APIError(
@@ -235,6 +250,46 @@ class AsyncClient(BaseClient):
 
         response_data = await self._post_request(Endpoints.wallet, json=data)
         return Wallet(**response_data)
+
+
+    async def cancel_invoice(self, id: Optional[str] = None, order_id: Optional[str] = None) -> Invoice:
+        """
+        Asynchronously cancels a specific invoice.
+
+        Parameters:
+            id (str): The invoice ID.
+            order_id (str): The order ID.
+
+        Returns:
+                Invoice DTO: The invoice data.
+        """
+        data = {
+            "id": id,
+            "orderId": order_id
+        }
+
+        response_data = await self._delete_request(Endpoints.invoice, json=data)
+        return Invoice(**response_data)
+
+
+    async def prolongate_invoice(self, id: Optional[str] = None, order_id: Optional[str] = None) -> Invoice:
+        """
+        Asynchronously prolongates a specific invoice.
+
+        Parameters:
+            id (str): The invoice ID.
+            order_id (str): The order ID.
+
+        Returns:
+             Invoice DTO: The invoice data.
+        """
+        data = {
+            "id": id,
+            "orderId": order_id
+        }
+
+        response_data = await self._patch_request(Endpoints.invoice, json=data)
+        return Invoice(**response_data)
 
 
     async def close(self):

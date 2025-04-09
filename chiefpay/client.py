@@ -35,6 +35,12 @@ class Client(BaseClient):
     def _post_request(self, path: str, json: Optional[Dict] = None, max_retries: int = 3):
         return self._request("POST", path, max_retries, json=json)
 
+    def _patch_request(self, path: str, json: Optional[Dict] = None, max_retries: int = 3):
+        return self._request("PATCH", path, max_retries, json=json)
+
+    def _delete_request(self, path: str, json: Optional[Dict] = None, max_retries: int = 3):
+        return self._request("DELETE", path, max_retries, json=json)
+
     @staticmethod
     def _handle_response(response: requests.Response):
         if response.status_code == 429:
@@ -224,3 +230,37 @@ class Client(BaseClient):
 
         response_data = self._post_request(Endpoints.wallet, json=data)
         return Wallet(**response_data)
+
+    def cancel_invoice(self, id: Optional[str] = None, order_id: Optional[str] = None) -> Invoice:
+        """
+        Cancels an invoice based on the provided invoice ID or order ID.
+        Args:
+            id (Optional[str]): The unique identifier of the invoice to be canceled. Defaults to None.
+            order_id (Optional[str]): The unique identifier of the order associated with the invoice. Defaults to None.
+        Returns:
+            Invoice: An instance of the Invoice class containing the details of the canceled invoice.
+        """
+        data = {
+            "id": id,
+            "orderId": order_id
+        }
+
+        response_data = self._delete_request(Endpoints.invoice, data)
+        return Invoice(**response_data)
+
+    def prolongate_invoice(self, id: Optional[str] = None, order_id: Optional[str] = None) -> Invoice:
+        """
+        Prolongates an existing invoice by updating its details.
+        Args:
+            id (Optional[str]): The unique identifier of the invoice to be prolonged. Defaults to None.
+            order_id (Optional[str]): The unique identifier of the order associated with the invoice. Defaults to None.
+        Returns:
+            Invoice: An instance of the Invoice class containing the updated invoice details.
+        """
+        data = {
+            "id": id,
+            "orderId": order_id
+        }
+
+        response_data = self._patch_request(Endpoints.invoice, data)
+        return Invoice(**response_data)
