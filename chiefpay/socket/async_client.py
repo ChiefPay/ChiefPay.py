@@ -1,14 +1,11 @@
 import socketio
-
+from typing import Callable, Any
 from chiefpay.constants import BASE_URL
 from chiefpay.exceptions import SocketError
 from chiefpay.socket.base import BaseSocketClient
 
 
 class AsyncSocketClient(BaseSocketClient):
-    """
-    Client for interacting with the payment system via WebSockets (asynchronous).
-    """
     def __init__(self, api_key: str, base_url: str = BASE_URL):
         super().__init__(api_key, base_url)
         self.sio = socketio.AsyncClient()
@@ -30,9 +27,16 @@ class AsyncSocketClient(BaseSocketClient):
                 await self.on_rates(data)
 
         @self.sio.event
-        async def notification(data):
-            if self.on_notification:
-                await self.on_notification(data)
+        async def notification(data, ack: Callable[[Any], None] = None):
+            try:
+                if self.on_notification:
+                    await self.on_notification(data)
+                if ack:
+                    await ack()
+                return {"status": "success"}
+            except Exception as e:
+                print(f"Error processing notification: {e}")
+                return {"status": "error"}
 
     async def connect(self):
         """
@@ -56,6 +60,21 @@ class AsyncSocketClient(BaseSocketClient):
         """
         await self.sio.disconnect()
 
+    async def emit(
+        self, event: str, data: Any = None, callback: Callable[[Any], None] = None
+    ):
+        """
+        Asynchronously sends an event to the server with optional data and an acknowledgment callback.
+
+        Args:
+            event (str): The name of the event to emit.
+            data (Any, optional): The data to send with the event.
+            callback (Callable[[Any], None], optional): A function to handle the server's acknowledgment.
+        """
+        try:
+            await self.sio.emit(event, data, callback=callback)
+        except Exception as e:
+            raise SocketError(f"Failed to emit event '{event}': {e}")
 
     async def __aenter__(self):
         await self.connect()
