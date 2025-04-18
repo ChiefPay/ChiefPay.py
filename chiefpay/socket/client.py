@@ -38,6 +38,7 @@ class SocketClient(BaseSocketClient):
         ):
             try:
                 if self.on_notification:
+                    data = self._convert_to_dto(data)
                     self.on_notification(data)
                 if ack:
                     ack()

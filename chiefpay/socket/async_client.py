@@ -30,6 +30,7 @@ class AsyncSocketClient(BaseSocketClient):
         async def notification(data, ack: Callable[[Any], None] = None):
             try:
                 if self.on_notification:
+                    data = self._convert_to_dto(data)
                     await self.on_notification(data)
                 if ack:
                     await ack()
