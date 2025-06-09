@@ -29,7 +29,6 @@ class Invoice(BaseModel):
     payed_amount: str = Field(alias="payedAmount")
     fee_included: bool = Field(alias="feeIncluded")
     accuracy: str
-    discount: str
     fee_rate: str = Field(alias="feeRate")
     created_at: str = Field(alias="createdAt")
     expired_at: str = Field(alias="expiredAt")

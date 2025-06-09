@@ -16,7 +16,6 @@ try:
         currency="RUB",  # Currently supported: USD and RUB (default is USD)
         fee_included=False,  # True to pass the commission to the payer
         accuracy="0.01",  # Consider the payment successful if at least 99% of the amount is paid
-        discount="0.02",  # 2% discount, the amount becomes 15.10$
     )
     print("Created invoice:", invoice)
 

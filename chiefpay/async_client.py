@@ -200,7 +200,6 @@ class AsyncClient(BaseClient):
         currency: Optional[str] = "USD",
         fee_included: Optional[bool] = False,
         accuracy: Optional[float] = None,
-        discount: Optional[float] = None,
         url_return: Optional[str] = None,
         url_success: Optional[str] = None
     ) -> Invoice:
@@ -214,7 +213,6 @@ class AsyncClient(BaseClient):
             currency (str): The currency.
             fee_included (bool): Whether the fee is included in the amount.
             accuracy (float): The accuracy level.
-            discount (float): The discount.
 
         Returns:
              Invoice DTO: The created invoice data.
@@ -226,7 +224,6 @@ class AsyncClient(BaseClient):
             "currency": currency,
             "feeIncluded": fee_included,
             "accuracy": accuracy,
-            "discount": discount,
             "urlReturn": url_return,
             "urlSuccess": url_success
         }
