@@ -21,20 +21,18 @@ class AsyncSocketClient(BaseSocketClient):
             print("Disconnected from Socket.IO server")
 
         @self.sio.event
-        async def rates(data):
+        async def rates(data: dict):
             self.rates = data
             if self.on_rates:
                 await self.on_rates(data)
 
         @self.sio.event
-        async def notification(data, ack: Callable[[Any], None] = None):
+        async def notification(data: dict):
             try:
                 if self.on_notification:
                     data = self._convert_to_dto(data)
                     await self.on_notification(data)
-                if ack:
-                    await ack()
-                return {"status": "success"}
+                    return {"status": "success"}
             except Exception as e:
                 print(f"Error processing notification: {e}")
                 return {"status": "error"}

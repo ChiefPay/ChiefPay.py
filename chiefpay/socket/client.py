@@ -3,7 +3,6 @@ from typing import Callable, Any
 from chiefpay.constants import BASE_URL
 from chiefpay.exceptions import SocketError
 from chiefpay.socket.base import BaseSocketClient
-from chiefpay.types.notification import NotificationInvoice, NotificationTransaction
 
 
 class SocketClient(BaseSocketClient):
@@ -26,23 +25,18 @@ class SocketClient(BaseSocketClient):
             print("Disconnected from Socket.IO server")
 
         @self.sio.event
-        def rates(data):
+        def rates(data: dict):
             self.rates = data
             if self.on_rates:
                 self.on_rates(data)
 
         @self.sio.event
-        def notification(
-            data: NotificationTransaction | NotificationInvoice,
-            ack: Callable[[Any], None] = None,
-        ):
+        def notification(data: dict):
             try:
                 if self.on_notification:
                     data = self._convert_to_dto(data)
                     self.on_notification(data)
-                if ack:
-                    ack()
-                return {"status": "success"}
+                    return {"status": "success"}
             except Exception as e:
                 print(f"Error processing notification: {e}")
                 return {"status": "error"}
