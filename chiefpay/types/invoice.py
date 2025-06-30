@@ -8,9 +8,9 @@ from chiefpay.types.transaction import LastTransaction
 class Address(BaseModel):
     chain: str
     token: str
-    method_name: str = Field(alias='methodName')
+    method_name: str = Field(alias="methodName")
     address: str
-    token_rate: Optional[str] = Field(alias='tokenRate', default=None)
+    token_rate: Optional[str] = Field(alias="tokenRate", default=None)
 
 
 class FiatDetails(BaseModel):
@@ -27,6 +27,7 @@ class Invoice(BaseModel):
     id: str
     order_id: str = Field(alias="orderId")
     payed_amount: str = Field(alias="payedAmount")
+    merchant_amount: str = Field(alias="merchantAmount")
     fee_included: bool = Field(alias="feeIncluded")
     accuracy: str
     fee_rate: str = Field(alias="feeRate")
@@ -37,10 +38,15 @@ class Invoice(BaseModel):
     description: Optional[str] = Field(default=None)
     amount: Optional[str] = Field(default="0")
     fiat_details: Optional[List[FiatDetails]] = Field(alias="FiatDetails", default=None)
-    last_transaction: Optional[LastTransaction] = Field(alias="lastTransaction", default=None)
+    last_transaction: Optional[LastTransaction] = Field(
+        alias="lastTransaction", default=None
+    )
     url: str
     url_success: Optional[str] = Field(alias="urlSuccess", default=None)
     url_return: Optional[str] = Field(alias="urlReturn", default=None)
+    original_expired_at: Optional[str] = Field(alias="originalExpiredAt", default=None)
+    canceled_at: Optional[str] = Field(alias="canceledAt", default=None)
+    support_link: Optional[str] = Field(alias="supportLink", default=None)
 
     class Config:
         populate_by_name = True
