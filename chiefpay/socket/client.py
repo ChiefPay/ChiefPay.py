@@ -25,6 +25,13 @@ class SocketClient(BaseSocketClient):
             print("Disconnected from Socket.IO server")
 
         @self.sio.event
+        def connect_error(data):
+            if data and "Too many connections!" in str(data):
+                self._too_many_connections = True
+            elif data and "Wrong api key" in str(data):
+                self._invalid_api_key = True
+
+        @self.sio.event
         def rates(data: dict):
             self.rates = data
             if self.on_rates:
@@ -55,6 +62,10 @@ class SocketClient(BaseSocketClient):
                 socketio_path=self.PATH,
             )
         except Exception as e:
+            if self._too_many_connections:
+                raise SocketError("Too many connections!")
+            if self._invalid_api_key:
+                raise SocketError("Invalid API key provided.")
             raise SocketError(f"Failed to connect to Socket.IO server: {e}")
 
     def disconnect(self):

@@ -26,6 +26,8 @@ class BaseSocketClient(BaseClient):
         self.rates: list[Rate] = None
         self.on_rates = None
         self.on_notification = None
+        self._too_many_connections = False
+        self._invalid_api_key = False
 
     def _init_session(self):
         return None
