@@ -1,21 +1,53 @@
-__all__ = (
-    'Invoice',
-    'Address',
-    'FiatDetails',
-    'Wallet',
-    'Rate',
-    'Transaction',
-    'NotificationTransaction',
-    'NotificationInvoice',
-    'TransactionsHistory',
-    'InvoicesHistory',
-    'InvoiceStatus',
+__all__ = [
+    # Enums
+    "InvoiceStatus",
+    "ErrorStatusCode",
+    "ResponseStatus",
+    # Core models
+    "Invoice",
+    "Rate",
+    "Transaction",
+    "LastTransaction",
+    "Wallet",
+    "StaticWalletNotification",
+    # Request models
+    "ChainToken",
+    "ChainTokenStatic",
+    "PaymentDetails",
+    # History models
+    "InvoicesHistory",
+    "TransactionsHistory",
+    # Notification models
+    "NotificationInvoice",
+    "NotificationTransaction",
+    # Error models
+    "ErrorResponse",
+    "Message",
+    "ErrorStatusCode",
+]
+
+
+from chiefpay.types.models import (
+    # Enums
+    InvoiceStatus,
+    ErrorStatusCode,
+    ResponseStatus,
+    # Core domain models
+    Invoice,
+    Rate,
+    Transaction,
+    LastTransaction,
+    # Wallet models (StaticWallet is our Wallet)
+    StaticWallet as Wallet,
+    StaticWalletNotification,
+    # Request/Response models
+    ChainToken,
+    ChainTokenStatic,
+    PaymentDetails,
+    # Error models
+    ErrorResponse,
+    Message,
 )
 
-from chiefpay.types.invoice import Invoice, Address, FiatDetails
-from chiefpay.types.history import TransactionsHistory, InvoicesHistory
-from chiefpay.types.wallet import Wallet
-from chiefpay.types.rates import Rate
-from chiefpay.types.transaction import Transaction
-from chiefpay.types.notification import NotificationTransaction, NotificationInvoice
-from chiefpay.types.enums import InvoiceStatus
+from chiefpay.types.history import InvoicesHistory, TransactionsHistory
+from chiefpay.types.notification import NotificationInvoice, NotificationTransaction
