@@ -24,14 +24,18 @@ class APIError(ChiefPayError):
         message: str,
         code: Optional[str] = None,
         fields: Optional[List[str]] = None,
+        errors: Optional[List[str]] = None,
         status_code: Optional[int] = None,
     ):
         self.code = (
             ChiefPayErrorCode(code) if code in ChiefPayErrorCode.__members__ else None
         )
         self.fields = fields or []
+        self.errors = errors or []
         self.status_code = status_code
-        super().__init__(f"{message} (Code: {code}, Fields: {fields})")
+        super().__init__(
+            f"{message} (Code: {code}, Fields: {fields}, Errors: {errors})"
+        )
 
 
 class ManyRequestsError(ChiefPayError):
