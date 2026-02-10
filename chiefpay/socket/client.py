@@ -33,6 +33,7 @@ class SocketClient(BaseSocketClient):
 
         @self.sio.event
         def rates(data: dict):
+            data = self._convert_to_dto_rates(data)
             self.rates = data
             if self.on_rates:
                 self.on_rates(data)
