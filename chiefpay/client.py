@@ -28,14 +28,14 @@ class Client(BaseClient):
     """
 
     def _init_session(self):
-        session = requests.session()
+        session = requests.Session()
         session.headers.update(self.headers)
         return session
 
     def _request(self, method: str, path: str, max_retries: int = 3, **kwargs):
         url = self._get_url(path)
         for attempt in range(max_retries):
-            response = self.session.request(method, url, **kwargs, verify=False)
+            response = self.session.request(method, url, **kwargs)
             try:
                 return self._handle_response(response)
             except ManyRequestsError:
@@ -74,14 +74,12 @@ class Client(BaseClient):
         if not (200 <= response.status_code < 300):
             try:
                 error_data = response.json()
-                if error_data.get("status") == "error" and "message" in error_data:
-                    message_data = error_data["message"]
+                if error_data:
                     raise APIError(
                         status_code=response.status_code,
-                        message=message_data.get("message", "Unknown error"),
-                        code=message_data.get("code"),
-                        fields=message_data.get("fields"),
-                        errors=message_data.get("errors"),
+                        message=error_data.get("message", "Unknown error"),
+                        code=error_data.get("code"),
+                        errors=error_data.get("errors"),
                     )
                 raise TransportError(response.status_code, response.text)
             except ValueError:
@@ -89,7 +87,7 @@ class Client(BaseClient):
 
         try:
             data = response.json()
-            return data.get("data")
+            return data
         except ValueError:
             raise InvalidJSONError()
 

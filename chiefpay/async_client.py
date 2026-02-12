@@ -85,13 +85,12 @@ class AsyncClient(BaseClient):
             try:
                 content_type = response.headers.get("Content-Type", "")
                 error_data = await response.json(content_type=content_type)
-                if error_data.get("status") == "error" and "message" in error_data:
-                    message_data = error_data["message"]
+                if error_data:
                     raise APIError(
                         status_code=response.status,
-                        message=message_data.get("message", "Unknown error"),
-                        code=message_data.get("code"),
-                        fields=message_data.get("fields"),
+                        message=error_data.get("message", "Unknown error"),
+                        code=error_data.get("code"),
+                        errors=error_data.get("errors"),
                     )
                 raise TransportError(response.status, text)
             except ValueError:
@@ -99,7 +98,7 @@ class AsyncClient(BaseClient):
 
         try:
             data = await response.json()
-            return data.get("data")
+            return data
         except ValueError:
             raise InvalidJSONError()
 
