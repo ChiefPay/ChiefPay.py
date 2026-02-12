@@ -16,6 +16,7 @@ from chiefpay.types import (
     TransactionsHistory,
     Transaction,
     ChainToken,
+    PaymentMethods,
 )
 from chiefpay.utils import Utils
 
@@ -111,6 +112,16 @@ class AsyncClient(BaseClient):
         """
         rates = await self._get_request(Endpoints.rates)
         return [Rate(**rate) for rate in rates]
+
+    async def get_payment_methods(self) -> PaymentMethods:
+        """
+        Asynchronously retrieves the list of available payment methods.
+
+        Returns:
+             PaymentMethods: The payment methods data.
+        """
+        response_data = await self._get_request(Endpoints.payment_methods)
+        return PaymentMethods(**response_data)
 
     async def get_invoice(self, id: str) -> Invoice:
         """
@@ -323,6 +334,20 @@ class AsyncClient(BaseClient):
 
         endpoint = Endpoints.invoice_by_id.value.format(id=id)
         response_data = await self._patch_request(endpoint, json=data)
+        return Invoice(**response_data)
+
+    async def subscribe_invoice(self, id: str) -> Invoice:
+        """
+        Asynchronously subscribe to invoice updates (long-polling endpoint).
+
+        Parameters:
+            id (str): The invoice ID (UUID).
+
+        Returns:
+            Invoice DTO: The updated invoice details.
+        """
+        endpoint = Endpoints.invoice_subscribe.value.format(id=id)
+        response_data = await self._get_request(endpoint)
         return Invoice(**response_data)
 
     async def close(self):

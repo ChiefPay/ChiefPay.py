@@ -81,6 +81,23 @@ class SuccessResponseRateArray(BaseModel):
     data: list[Rate]
 
 
+class PaymentMethod(BaseModel):
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+    chain: str = Field(..., description="Chain name")
+    token: str = Field(..., description="Token name")
+    method_name: str = Field(
+        ..., alias="methodName", description="Payment method name (token + chain)"
+    )
+    icon: str = Field(..., description="Payment method icon")
+
+
+class PaymentMethods(BaseModel):
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+    payment_methods: list[PaymentMethod] = Field(
+        ..., alias="paymentMethods"
+    )
+
+
 class InvoiceStatus(str, Enum):
     waiting_selection = "WAITING_SELECTION"
     waiting_payment = "WAITING_PAYMENT"
@@ -100,8 +117,8 @@ class PaymentDetails(BaseModel):
     model_config = ConfigDict(extra="forbid")
     chain: str = Field(..., description="Chain name")
     token: str = Field(..., description="Token name")
-    address: str = Field(..., description="Payment address")
-    amount: Decimal = Field(..., description="Expected payment amount in tokens")
+    address: str | None = Field(None, description="Payment address")
+    amount: Decimal | None = Field(None, description="Expected payment amount in tokens")
 
 
 class Invoice(BaseModel):

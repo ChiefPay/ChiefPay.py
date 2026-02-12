@@ -10,6 +10,8 @@ __all__ = [
     "LastTransaction",
     "Wallet",
     "StaticWalletNotification",
+    "PaymentMethod",
+    "PaymentMethods",
     # Request models
     "ChainToken",
     "ChainTokenStatic",
@@ -40,6 +42,9 @@ from chiefpay.types.models import (
     # Wallet models (StaticWallet is our Wallet)
     StaticWallet as Wallet,
     StaticWalletNotification,
+    # Payment methods
+    PaymentMethod,
+    PaymentMethods,
     # Request/Response models
     ChainToken,
     ChainTokenStatic,
