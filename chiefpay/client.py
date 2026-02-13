@@ -330,17 +330,3 @@ class Client(BaseClient):
         endpoint = Endpoints.invoice_by_id.value.format(id=id)
         response_data = self._patch_request(endpoint, json=data)
         return Invoice(**response_data)
-
-    def subscribe_invoice(self, id: str) -> Invoice:
-        """
-        Subscribe to invoice updates (long-polling endpoint).
-
-        Args:
-            id (str): The invoice ID (UUID).
-
-        Returns:
-            Invoice: The updated invoice details.
-        """
-        endpoint = Endpoints.invoice_subscribe.value.format(id=id)
-        response_data = self._get_request(endpoint)
-        return Invoice(**response_data)

@@ -336,20 +336,6 @@ class AsyncClient(BaseClient):
         response_data = await self._patch_request(endpoint, json=data)
         return Invoice(**response_data)
 
-    async def subscribe_invoice(self, id: str) -> Invoice:
-        """
-        Asynchronously subscribe to invoice updates (long-polling endpoint).
-
-        Parameters:
-            id (str): The invoice ID (UUID).
-
-        Returns:
-            Invoice DTO: The updated invoice details.
-        """
-        endpoint = Endpoints.invoice_subscribe.value.format(id=id)
-        response_data = await self._get_request(endpoint)
-        return Invoice(**response_data)
-
     async def close(self):
         """
         Closes the asynchronous session.

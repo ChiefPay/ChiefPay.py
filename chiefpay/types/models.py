@@ -17,22 +17,10 @@ class ErrorStatusCode(str, Enum):
     permission_denied = "PERMISSION_DENIED"
 
 
-class ResponseStatus(str, Enum):
-    """Response status - success or error"""
-
-    ERROR = "error"
-    SUCCESS = "success"
-
-
-class Message(BaseModel):
-    errors: list[str]
-    code: ErrorStatusCode
-
-
 class ErrorResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    status: ResponseStatus
-    message: Message
+    code: ErrorStatusCode
+    errors: list[str]
 
 
 class ChainTokenStatic(BaseModel):
@@ -58,12 +46,6 @@ class StaticWallet(BaseModel):
     )
 
 
-class SuccessResponseStaticWallet(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-    status: ResponseStatus
-    data: StaticWallet
-
-
 class CreateStaticWalletRequest(BaseModel):
     model_config = ConfigDict(extra="forbid", populate_by_name=True)
     order_id: str = Field(..., alias="orderId", description="ID in the client's system")
@@ -73,12 +55,6 @@ class Rate(BaseModel):
     model_config = ConfigDict(extra="forbid")
     name: str
     rate: str
-
-
-class SuccessResponseRateArray(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-    status: ResponseStatus
-    data: list[Rate]
 
 
 class PaymentMethod(BaseModel):
@@ -93,9 +69,7 @@ class PaymentMethod(BaseModel):
 
 class PaymentMethods(BaseModel):
     model_config = ConfigDict(extra="forbid", populate_by_name=True)
-    payment_methods: list[PaymentMethod] = Field(
-        ..., alias="paymentMethods"
-    )
+    payment_methods: list[PaymentMethod] = Field(..., alias="paymentMethods")
 
 
 class InvoiceStatus(str, Enum):
@@ -118,7 +92,9 @@ class PaymentDetails(BaseModel):
     chain: str = Field(..., description="Chain name")
     token: str = Field(..., description="Token name")
     address: str | None = Field(None, description="Payment address")
-    amount: Decimal | None = Field(None, description="Expected payment amount in tokens")
+    amount: Decimal | None = Field(
+        None, description="Expected payment amount in tokens"
+    )
 
 
 class Invoice(BaseModel):
@@ -130,74 +106,84 @@ class Invoice(BaseModel):
         description="ID in the client's system (specified when creating an invoice)",
     )
     description: str | None = Field(
-        None, description="Description, shown on the payment page"
+        None, description="Description shown on the payment page"
     )
-    amount: Decimal | None = Field(None, description="Amount in USD")
+    amount: Decimal | None = Field(
+        None, description="Original order amount in USD (excluding service fee)"
+    )
+    payment_amount: Decimal | None = Field(
+        None,
+        alias="paymentAmount",
+        description="Amount to pay in USD (excluding service fee if feeIncluded)",
+    )
     paid_amount: Decimal = Field(
-        ..., alias="paidAmount", description="Amount paid in USD"
+        ...,
+        alias="paidAmount",
+        description="Total amount actually paid by the customer in USD",
     )
     fee_included: bool = Field(
         ...,
         alias="feeIncluded",
-        description="If the option is enabled, the service fee will be added to the amount",
+        description="If true, the service fee is added to paymentDetails.amount (paid by customer)",
     )
     accuracy: Annotated[Decimal, Field(ge=Decimal("0"), le=Decimal("0.05"))] = Field(
         ...,
-        description="What deviation from amount should still be marked COMPLETE. From 0 to 0.05 where 0.05 is 5%",
+        description="Allowed payment deviation (0 to 0.05). If within range, status is COMPLETE",
     )
     fee_rate: Decimal = Field(
         ...,
         alias="feeRate",
-        description="What fraction of the actual payment amount will be debited as a service fee. For example, 0.02 is 2%",
+        description="Service fee fraction (e.g., 0.02 for 2%)",
+    )
+    expected_merchant_amount: Decimal = Field(
+        ...,
+        alias="expectedMerchantAmount",
+        description="Expected credit to merchant balance if paid 100%",
+    )
+    merchant_paid_amount: Decimal = Field(
+        ...,
+        alias="merchantPaidAmount",
+        description="Actual amount already credited to merchant balance (paidAmount minus fee)",
     )
     created_at: AwareDatetime = Field(
-        ..., alias="createdAt", description="Invoice creation date in ISO 8601 format"
+        ..., alias="createdAt", description="ISO 8601 creation date"
     )
     expired_at: AwareDatetime = Field(
-        ..., alias="expiredAt", description="Invoice expiration date in ISO 8601 format"
-    )
-    status: InvoiceStatus = Field(..., description="Current invoice status")
-    url: AnyUrl = Field(..., description="Payment link")
-    last_transaction: LastTransaction | None = Field(
-        None, alias="lastTransaction", description="Last transaction on invoice"
-    )
-    url_success: AnyUrl | None = Field(
-        None, alias="urlSuccess", description="Redirect after successful payment"
-    )
-    url_return: AnyUrl | None = Field(
-        None,
-        alias="urlReturn",
-        description="Redirect after failure (canceled or expired)",
+        ..., alias="expiredAt", description="ISO 8601 expiration date"
     )
     original_expired_at: AwareDatetime | None = Field(
         None,
         alias="originalExpiredAt",
-        description="When an invoice is prolonged, the original expiredAt is recorded here",
+        description="Recorded original expiration date if prolonged",
     )
     canceled_at: AwareDatetime | None = Field(
         None,
         alias="canceledAt",
-        description="Invoice cancellation date in ISO 8601 format",
+        description="ISO 8601 cancellation date",
+    )
+    status: InvoiceStatus = Field(..., description="Current invoice status")
+    url: AnyUrl = Field(..., description="Public payment page link")
+    url_success: AnyUrl | None = Field(
+        None, alias="urlSuccess", description="Redirect URL after successful payment"
+    )
+    url_return: AnyUrl | None = Field(
+        None,
+        alias="urlReturn",
+        description="Redirect URL after failure (canceled or expired)",
     )
     support_link: AnyUrl | None = Field(
-        None, alias="supportLink", description="Merchant support link"
+        None, alias="supportLink", description="Merchant's support contact link"
     )
-    merchant_amount: Decimal = Field(
-        ...,
-        alias="merchantAmount",
-        description="Amount to be credited to the merchant, after deducting the commission",
+    last_transaction: LastTransaction | None = Field(
+        None,
+        alias="lastTransaction",
+        description="Info about the most recent incoming transaction",
     )
     payment_details: PaymentDetails | None = Field(
         None,
         alias="paymentDetails",
-        description="Payment details appear after selecting the payment method and entering the amount",
+        description="Information about the selected payment method and the amount to be paid.",
     )
-
-
-class SuccessResponseInvoice(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-    status: ResponseStatus
-    data: Invoice
 
 
 class ChainToken(BaseModel):
@@ -263,12 +249,6 @@ class Invoices(BaseModel):
     )
 
 
-class SuccessResponseInvoices(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-    status: ResponseStatus
-    data: Invoices
-
-
 class GetHistoryRequest(BaseModel):
     model_config = ConfigDict(extra="forbid", populate_by_name=True)
     from_date: AwareDatetime = Field(
@@ -330,9 +310,3 @@ class Transactions(BaseModel):
         alias="totalCount",
         description="How many transactions in total (for pagination)",
     )
-
-
-class SuccessResponseTransactions(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-    status: ResponseStatus
-    data: Transactions
