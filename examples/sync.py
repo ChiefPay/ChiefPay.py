@@ -26,7 +26,6 @@ except Exception as e:
 try:
     invoice = client.create_invoice(
         order_id="564cca2e-30d5-4c69-90d5-fa3f368aea90",  # Order ID in your system
-        description="Test Invoice - Payment for Order #123",
         amount="15.4",  # String format, not float. If not specified, payer can choose the amount
         fee_included=False,  # True to pass the commission to the payer
         accuracy="0.01",  # String format. Consider payment successful if at least 99% of the amount is paid

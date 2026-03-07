@@ -65,6 +65,8 @@ class PaymentMethod(BaseModel):
         ..., alias="methodName", description="Payment method name (token + chain)"
     )
     icon: str = Field(..., description="Payment method icon")
+    chain_icon: str = Field(..., alias="chainIcon", description="Chain icon")
+    token_icon: str = Field(..., alias="tokenIcon", description="Token icon")
 
 
 class PaymentMethods(BaseModel):
@@ -105,9 +107,7 @@ class Invoice(BaseModel):
         alias="orderId",
         description="ID in the client's system (specified when creating an invoice)",
     )
-    description: str | None = Field(
-        None, description="Description shown on the payment page"
-    )
+    merchant_name: str = Field(..., alias="merchantName", description="Merchant's name")
     amount: Decimal | None = Field(
         None, description="Original order amount in USD (excluding service fee)"
     )
@@ -195,9 +195,6 @@ class ChainToken(BaseModel):
 class CreateInvoiceRequest(BaseModel):
     model_config = ConfigDict(extra="forbid", populate_by_name=True)
     order_id: str = Field(..., alias="orderId", description="ID in the client's system")
-    description: str | None = Field(
-        None, description="Description, shown on the payment page"
-    )
     amount: Annotated[Decimal, Field(ge=Decimal("0.01"))] | None = Field(
         None,
         description="Invoice amount in USD. If omitted, any payment amount will result in COMPLETE status",

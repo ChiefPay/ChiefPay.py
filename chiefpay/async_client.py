@@ -220,7 +220,6 @@ class AsyncClient(BaseClient):
     async def create_invoice(
         self,
         order_id: str,
-        description: Optional[str] = None,
         amount: Optional[str] = None,
         fee_included: Optional[bool] = False,
         accuracy: Optional[str] = None,
@@ -233,7 +232,6 @@ class AsyncClient(BaseClient):
 
         Parameters:
             order_id (str): The order ID in your system.
-            description (str, optional): The invoice description.
             amount (str, optional): The amount in USD (decimal string, e.g., "15.4").
             fee_included (bool, optional): Whether the fee is included in the amount.
             accuracy (str, optional): Payment tolerance ("0" to "0.05", e.g., "0.01" = 99% minimum).
@@ -246,7 +244,6 @@ class AsyncClient(BaseClient):
         """
         data = {
             "orderId": order_id,
-            "description": description,
             "amount": amount,
             "feeIncluded": fee_included,
             "accuracy": accuracy,
