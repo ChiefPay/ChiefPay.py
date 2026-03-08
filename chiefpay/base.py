@@ -28,7 +28,7 @@ class BaseClient:
     def _init_session(self):
         raise NotImplementedError
 
-    def _get_url(self, endpoint: Endpoints):
+    def _get_url(self, endpoint: Union[Endpoints, str]):
         if not self.session:
             self.session = self._init_session()
 

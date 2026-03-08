@@ -30,7 +30,6 @@ payment_methods = client.get_payment_methods()
 # Create an invoice
 invoice = client.create_invoice(
     order_id="unique-order-id",
-    description="Payment for order #123",
     amount="15.4",  # String format, USD
     fee_included=False,
     accuracy="0.01"
@@ -50,8 +49,7 @@ async def main():
 
         invoice = await client.create_invoice(
             order_id="unique-order-id",
-            amount="100.50",
-            description="Test payment"
+            amount="100.50"
         )
         print(f"Invoice ID: {invoice.id}")
 

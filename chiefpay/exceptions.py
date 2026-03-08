@@ -31,7 +31,7 @@ class APIError(ChiefPayError):
         )
         self.errors = errors or []
         self.status_code = status_code
-        detail = f"Code: {self.code.value if self.code else 'Unknown'}, Errors: {self.errors}"
+        detail = f"Code: {self.code.value if self.code else 'Unknown'}, Message: {message}, Errors: {self.errors}"
         super().__init__(detail)
 
 

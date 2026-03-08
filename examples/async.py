@@ -18,8 +18,8 @@ async def main():
         # Get available payment methods (no auth required)
         try:
             payment_methods = await client.get_payment_methods()
-            for method in payment_methods.paymentMethods[:3]:  # Show first 3
-                print(f"{method.methodName}: {method.chain}/{method.token}")
+            for method in payment_methods.payment_methods[:3]:  # Show first 3
+                print(f"{method.method_name}: {method.chain}/{method.token}")
         except Exception as e:
             print(f"Error getting payment methods: {e}")
 
