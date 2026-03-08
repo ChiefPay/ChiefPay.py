@@ -1,7 +1,6 @@
 from pydantic import BaseModel
 
-from chiefpay.types.invoice import Invoice
-from chiefpay.types.transaction import Transaction
+from chiefpay.types.models import Invoice, Transaction
 
 
 class NotificationTransaction(BaseModel):

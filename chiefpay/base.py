@@ -8,6 +8,7 @@ class BaseClient:
     """
     Base class for interacting with the payment system.
     """
+
     def __init__(self, api_key: str, base_url: str = BASE_URL):
         """
         Initialize the client.
@@ -20,17 +21,17 @@ class BaseClient:
         self.base_url = base_url
         self.headers = {
             "Accept": "application/json",
-            "X-Api-Key": self.api_key
+            "X-Api-Key": self.api_key,
         }
         self.session: Union[Session, ClientSession] = None
-
 
     def _init_session(self):
         raise NotImplementedError
 
-    def _get_url(self, endpoint: Endpoints):
+    def _get_url(self, endpoint: Union[Endpoints, str]):
         if not self.session:
             self.session = self._init_session()
 
-        url = self.base_url + endpoint.value
+        path = endpoint.value if isinstance(endpoint, Endpoints) else endpoint
+        url = self.base_url + path
         return url

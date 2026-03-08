@@ -1,10 +1,8 @@
 from typing import Callable, Union
 from chiefpay.base import BaseClient
 from chiefpay.constants import BASE_URL, Endpoints
-from chiefpay.types import Rate
-from chiefpay.types.invoice import Invoice
+from chiefpay.types import Rate, Invoice, Transaction
 from chiefpay.types.notification import NotificationInvoice, NotificationTransaction
-from chiefpay.types.transaction import Transaction
 
 
 class BaseSocketClient(BaseClient):
@@ -47,7 +45,7 @@ class BaseSocketClient(BaseClient):
 
     def set_on_rates(
         self,
-        callback: Callable[[Union[NotificationInvoice, NotificationTransaction]], None],
+        callback: Callable[[list[Rate]], None],
     ):
         """
         Sets a callback function to handle incoming rates updates.
@@ -80,3 +78,6 @@ class BaseSocketClient(BaseClient):
             return NotificationTransaction(transaction=Transaction(**transaction_data))
 
         return data
+
+    def _convert_to_dto_rates(self, data: dict) -> list[Rate]:
+        return [Rate(**rate_data) for rate_data in data]
