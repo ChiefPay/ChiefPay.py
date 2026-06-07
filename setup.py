@@ -6,7 +6,7 @@ def readme():
 
 setup(
     name='chiefpay',
-    version='2.0.1',
+    version='2.0.2',
     packages=find_packages(),
     install_requires=[
         'requests>=2.25.0,<3.0.0',

@@ -43,35 +43,37 @@ class AsyncClient(BaseClient):
                 continue
 
     async def _get_request(
-        self, path: str, params: Optional[Dict] = {}, max_retries: int = 3
+        self, path: str, params: Optional[Dict] = None, max_retries: int = 3
     ):
-        params = self._get_json(params)
+        # _prepare_params also drops None values, like _get_json does for bodies.
+        params = self._prepare_params(params)
 
         return await self._request("GET", path, max_retries, params=params)
 
     async def _post_request(
-        self, path: str, json: Optional[Dict] = {}, max_retries: int = 3
+        self, path: str, json: Optional[Dict] = None, max_retries: int = 3
     ):
         json = self._get_json(json)
 
         return await self._request("POST", path, max_retries, json=json)
 
     async def _patch_request(
-        self, path: str, json: Optional[Dict] = {}, max_retries: int = 3
+        self, path: str, json: Optional[Dict] = None, max_retries: int = 3
     ):
         json = self._get_json(json)
 
         return await self._request("PATCH", path, max_retries, json=json)
 
     async def _delete_request(
-        self, path: str, json: Optional[Dict] = {}, max_retries: int = 3
+        self, path: str, json: Optional[Dict] = None, max_retries: int = 3
     ):
         json = self._get_json(json)
 
         return await self._request("DELETE", path, max_retries, json=json)
 
-    def _get_json(self, data: Dict = {}):
-        return {k: v for k, v in data.items() if v is not None}
+    def _get_json(self, data: Optional[Dict] = None):
+        # None -> {} keeps the previous wire behavior (an empty JSON body).
+        return {k: v for k, v in (data or {}).items() if v is not None}
 
     @staticmethod
     async def _handle_response(response: aiohttp.ClientResponse):

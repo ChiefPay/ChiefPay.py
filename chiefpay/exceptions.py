@@ -37,7 +37,9 @@ class APIError(ChiefPayError):
 
 class ManyRequestsError(ChiefPayError):
     def __init__(self):
-        super().__init__("Too Many Requests", code="OUT_OF_RANGE")
+        # ChiefPayError only accepts a message; passing code= raised TypeError
+        # on every HTTP 429, masking the real rate-limit error.
+        super().__init__("Too Many Requests")
 
 
 class InvalidJSONError(ChiefPayError):

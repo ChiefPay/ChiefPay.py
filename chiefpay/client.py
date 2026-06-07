@@ -47,7 +47,7 @@ class Client(BaseClient):
     def _get_request(
         self, path: str, params: Optional[Dict] = None, max_retries: int = 3
     ):
-        return self._request("GET", path, max_retries, params=params)
+        return self._request("GET", path, max_retries, params=self._prepare_params(params))
 
     def _post_request(
         self, path: str, json: Optional[Dict] = None, max_retries: int = 3
